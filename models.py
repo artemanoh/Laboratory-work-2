@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 
 # ==========================================================
-# АБСТРАКЦІЯ ТА БАЗОВИЙ КЛАС
+# 1. АБСТРАКЦІЯ ТА БАЗОВИЙ КЛАС
 # ==========================================================
 class Device(ABC):
   """Абстрактний базовий клас пристрою."""
@@ -24,7 +24,7 @@ class Device(ABC):
 
   @abstractmethod
   def run_diagnostics(self) -> str:
-    """Абстрактний метод: кожен спадкоємець мусить реалізувати його по-своєму."""
+    """Абстрактний метод: кожен спадкоємець реалізує вивід та перевірки по-своєму."""
     pass
 
   def get_status_info(self) -> str:
@@ -33,7 +33,7 @@ class Device(ABC):
 
 
 # ==========================================================
-# НАСЛІДУВАННЯ ТА ПОЛІМОРФІЗМ
+# 2. НАСЛІДУВАННЯ ТА ПОЛІМОРФІЗМ (УНІКАЛЬНА ДІАГНОСТИКА)
 # ==========================================================
 class IPhone(Device):
   """Клас-нащадок для смартфонів Apple."""
@@ -44,16 +44,27 @@ class IPhone(Device):
       serial_number: str,
       issue: str,
       battery_health: int = 85,
+      face_id_ok: bool = True,
   ):
     super().__init__(model, serial_number, issue)
     self.battery_health = battery_health
+    self.face_id_ok = face_id_ok
 
-  # Поліморфізм: власна реалізація діагностики для iPhone
   def run_diagnostics(self) -> str:
-    return (
-        f"Діагностика iPhone [{self.model}]: Ємність АКБ:"
-        f" {self.battery_health}%, сенсор екрана OK."
-    )
+    """Запускає унікальну діагностику iPhone з виводом процесів у консоль."""
+    print(f"\n[ДІАГНОСТИКА IPHONE] {self.model} (S/N: {self.serial_number})")
+    print(f"  ├─ Перевірка АКБ (Battery Health): {self.battery_health}%")
+
+    if self.battery_health < 80:
+      print("  │  └─ [ПОПЕРЕДЖЕННЯ] Ємність батареї нижче 80% (потрібна заміна)!")
+    else:
+      print("  │  └─ [OK] Акумулятор у доброму стані.")
+
+    face_status = "OK (Працює)" if self.face_id_ok else "ПОМИЛКА (Апаратний збій)"
+    print(f"  ├─ Сканування модулів Face ID / TrueDepth: {face_status}")
+    print("  └─ Перевірка дисплейного модуля та тачскріна: Помилок не виявлено")
+
+    return f"Зафіксовано заявлену несправність: '{self.issue}'."
 
 
 class MacBook(Device):
@@ -65,35 +76,44 @@ class MacBook(Device):
       serial_number: str,
       issue: str,
       screen_size: float = 13.6,
+      cpu_temp: float = 45.0,
+      ssd_life_percent: int = 98,
   ):
     super().__init__(model, serial_number, issue)
     self.screen_size = screen_size
+    self.cpu_temp = cpu_temp
+    self.ssd_life_percent = ssd_life_percent
 
-  # Поліморфізм: власна реалізація діагностики для MacBook
   def run_diagnostics(self) -> str:
-    return (
-        f"Діагностика Mac [{self.model} {self.screen_size}\"]: Стан SSD 98%,"
-        " кулери в нормі."
-    )
+    """Запускає унікальну діагностику MacBook з виводом процесів у консоль."""
+    print(f"\n[ДІАГНОСТИКА MACBOOK] {self.model} {self.screen_size}\" (S/N: {self.serial_number})")
+    print(f"  ├─ Тест ресурсу накопичувача NVMe SSD: {self.ssd_life_percent}%")
+    print(f"  ├─ Замір температури CPU/GPU: {self.cpu_temp}°C")
+
+    if self.cpu_temp > 80.0:
+      print("  │  └─ [УВАГА] Виявлено критичний перегрів! Необхідне чищення та заміна термопасти.")
+    else:
+      print("  │  └─ [OK] Температурний режим у межах норми.")
+
+    print("  └─ Тестування портів Thunderbolt та клавіатури: Сканування завершено")
+
+    return f"Зафіксовано заявлену несправність: '{self.issue}'."
 
 
 # ==========================================================
-# ІНКАПСУЛЯЦІЯ У СКЛАДІ ТА ЗАМОВЛЕННЯХ
+# 3. ІНКАПСУЛЯЦІЯ ДАНИХ СКЛАДУ, МАЙСТРІВ ТА ЗАМОВЛЕНЬ
 # ==========================================================
 class SparePart:
   """Запчастина з повною інкапсуляцією кількості."""
 
   def __init__(self, part_name: str, stock_quantity: int, price: float):
     self.part_name = part_name
-    self.__stock_quantity = max(
-        0, stock_quantity
-    )  # Приватне поле (не можна зробити < 0)
+    self.__stock_quantity = max(0, stock_quantity)  # Приватне поле
     self.price = price
 
   @property
   def stock_quantity(self) -> int:
     return self.__stock_quantity
-
   def take_one(self) -> bool:
     """Безпечне зменшення залишку без прямого доступу ззовні."""
     if self.__stock_quantity > 0:
