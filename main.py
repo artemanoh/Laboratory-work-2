@@ -20,24 +20,30 @@ def main():
   hub.add_master(Master("Олексій", max_load=2))
   hub.add_master(Master("Артем", max_load=1))
 
-  # Створюємо конкретні об'єкти класів-нащадків
+  # Створюємо конкретні об'єкти з новими параметрами діагностики
   phone1 = IPhone(
-      "iPhone 15 Pro",
-      "SN-40291",
-      "Заміна батареї iPhone",
-      battery_health=78,
+      model="iPhone 15 Pro",
+      serial_number="SN-40291",
+      issue="Заміна батареї iPhone",
+      battery_health=74,     # Порожить попередження <80%
+      face_id_ok=True,
   )
+
   laptop = MacBook(
-      "MacBook Air M2",
-      "SN-55210",
-      "Чистка та заміна клавіатури Mac",
+      model="MacBook Air M2",
+      serial_number="SN-55210",
+      issue="Чистка та заміна клавіатури Mac",
       screen_size=13.6,
+      cpu_temp=86.4,         # Порожить попередження про перегрів >80°C
+      ssd_life_percent=95,
   )
+
   phone2 = IPhone(
-      "iPhone 13 Pro",
-      "SN-10294",
-      "Заміна камери iPhone",
+      model="iPhone 13 Pro",
+      serial_number="SN-10294",
+      issue="Заміна камери iPhone",
       battery_health=89,
+      face_id_ok=False,      # Покаже помилку Face ID
   )
 
   # Додаємо до замовлень

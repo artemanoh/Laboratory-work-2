@@ -9,9 +9,7 @@ class AppleService:
     self.parts = []
     self.masters = []
     self.orders = []
-    self.__revenue = (
-        0.0  # Приватний баланс (інкапсуляція: не можна переписати ззовні)
-    )
+    self.__revenue = 0.0  # Приватний баланс (інкапсуляція)
 
   @property
   def revenue(self) -> float:
@@ -31,7 +29,9 @@ class AppleService:
     )
 
   def process_all_orders(self):
-    print(f"\n--- Запуск автоматичної обробки замовлень у {self.title} ---")
+    print(f"\n" + "=" * 50)
+    print(f" ЗАПУСК АВТОМАТИЧНОЇ ОБРОБКИ ЗАМОВЛЕНЬ У {self.title}")
+    print("=" * 50)
 
     for order in self.orders:
       dev = order.device
@@ -39,11 +39,11 @@ class AppleService:
       if dev.is_fixed:
         continue
 
-      print(f"\nОбробка замовлення #{order.order_id} ({dev.model}):")
+      print(f"\n>>> ОБРОБКА ЗАМОВЛЕННЯ #{order.order_id} (Клієнт: {order.client_name})")
 
-      # ПОЛІМОРФІЗМ В ДІЇ: викликаємо діагностику, не турбуючись про конкретний підтип
-      diagnostic_result = dev.run_diagnostics()
-      print(f"  [Діагностика] {diagnostic_result}")
+      # ПОЛІМОРФІЗМ В ДІЇ: Метод самостійно друкує перевірки та повертає підсумок
+      diagnostic_summary = dev.run_diagnostics()
+      print(f"  📌 Підсумок перевірки: {diagnostic_summary}")
 
       # Пошук деталі
       needed_part = None
@@ -62,11 +62,11 @@ class AppleService:
       # Логіка обробки
       if needed_part is None or needed_part.stock_quantity <= 0:
         print(
-            f"  [ВІДХИЛЕНО] Немає деталі '{dev.issue}' на складі для замовлення"
+            f"  ❌ [ВІДХИЛЕНО] Немає деталі '{dev.issue}' на складі для замовлення"
             f" #{order.order_id}"
         )
       elif available_master is None:
-        print("  [ЧЕРГА] Усі майстри зайняті. Замовлення очікує.")
+        print("  ⏳ [ЧЕРГА] Усі майстри зайняті. Замовлення очікує.")
       else:
         available_master.assign_task()
         needed_part.take_one()
@@ -76,14 +76,14 @@ class AppleService:
         available_master.complete_task()
 
         print(
-            f"  [УСПІХ] Майстер {available_master.name} виконав ремонт."
+            f"  ✅ [УСПІХ] Майстер {available_master.name} виконав ремонт."
             f" Чек: {order.cost:.2f} грн"
         )
 
   def show_report(self):
-    print("\n" + "=" * 48)
-    print(f"ПІДСУМКОВИЙ ЗВІТ: {self.title}")
-    print("=" * 48)
+    print("\n" + "=" * 50)
+    print(f" ПІДСУМКОВИЙ ЗВІТ: {self.title}")
+    print("=" * 50)
 
     print("Залишки деталей на складі:")
     for part in self.parts:
